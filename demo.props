@@ -1,0 +1,4 @@
+versionPrefix=0.0.1
+versionSuffix=alpha.1
+
+cmd.build="docker build -f Dockerfile ."
