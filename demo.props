@@ -1,4 +1,5 @@
 versionPrefix=0.0.1
 versionSuffix=alpha.1
+versionGitHash=git rev-parse --short HEAD
 
 cmd.build="docker build -f Dockerfile ."
