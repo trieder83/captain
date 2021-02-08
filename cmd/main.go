@@ -10,14 +10,33 @@ import (
 	"strings"
 )
 
-func getVersionString(versionPtr *bool, prop *properties.Properties) string {
+func getVersionString(prop *properties.Properties) string {
 	cmdVersStrings := strings.Split(prop.GetString("versionGitHash", ""), " ")
 	cmdVers := exec.Command(cmdVersStrings[0], cmdVersStrings[1:]...)
 	out, err := cmdVers.CombinedOutput()
 	if err != nil {
 		log.Fatalf("error %s\n", err)
 	}
-	return strings.TrimSuffix(string(out), "\n")
+	outnoline := strings.TrimSuffix(string(out), "\n")
+	versionString := prop.GetString("versionPrefix", "undefined") + "-" + outnoline + "-" + prop.GetString("versionSuffix", "undefined")
+	return versionString
+}
+func runCmd(cmdKey string, prop *properties.Properties) {
+	var cmdString string
+	// replace patterns
+	cmdString = strings.ReplaceAll(prop.MustGetString(cmdKey), "#VERSIONSTRING#", getVersionString(prop))
+	// split for execution
+	cmdStrings := strings.Split(cmdString, " ")
+	// execute
+	cmd := exec.Command(cmdStrings[0], cmdStrings[1:]...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	// err := cmd.Wait()
+	err := cmd.Run()
+	if err != nil {
+		log.Fatalf("error %s\n", err)
+	}
+
 }
 
 func main() {
@@ -26,29 +45,32 @@ func main() {
 	prop := properties.MustLoadFile("demo.props", properties.UTF8)
 
 	// init flags
-	versionPtr := flag.Bool("version", false, "versionFlag")
-	helpPtr := flag.Bool("help", false, "helpFlag")
+	versionPtr := flag.Bool("version", false, "version Flag")
+	helpPtr := flag.Bool("help", false, "help Flag")
+	buildPtr := flag.Bool("build", false, "bulid Flag")
+	testPtr := flag.Bool("test", false, "test Flag")
 	flag.Parse()
 
 	// flag.Arg(i)
+	//fmt.Println(flag.Arg(1))
+
 	if *helpPtr {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 	if *versionPtr {
-		versionString := getVersionString(versionPtr, prop)
-		//versionString := "6796757"
-		fmt.Printf("%v-%v-%v\n", prop.GetString("versionPrefix", "undefined"), versionString, prop.GetString("versionSuffix", "undefined"))
+		fmt.Println(getVersionString(prop))
 		os.Exit(0)
 	}
-
-	cmd := exec.Command("ls", "-lah")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	// err := cmd.Wait()
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalf("error %s\n", err)
+	if *buildPtr {
+		runCmd("cmd.build", prop)
+	}
+	if *testPtr {
+		runCmd("cmd.test", prop)
+	}
+	if len(flag.Args()) == 0 {
+		// default build
+		runCmd("cmd.build", prop)
 	}
 
 }

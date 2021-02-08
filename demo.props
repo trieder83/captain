@@ -2,4 +2,5 @@ versionPrefix=0.0.1
 versionSuffix=alpha.1
 versionGitHash=git rev-parse --short HEAD
 
-cmd.build="docker build -f Dockerfile ."
+cmd.build=docker build -f Dockerfile --tag demoimage:#VERSIONSTRING# .
+cmd.test=docker build -target unittest -f Dockerfile -t demoimage:#VERSIONSTRING#-test .
