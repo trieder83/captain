@@ -17,24 +17,29 @@ func getVersionString(versionPtr *bool, prop *properties.Properties) string {
 	if err != nil {
 		log.Fatalf("error %s\n", err)
 	}
-	return string(out)
+	return strings.TrimSuffix(string(out), "\n")
 }
 
 func main() {
 
 	// init props
 	prop := properties.MustLoadFile("demo.props", properties.UTF8)
+
 	// init flags
 	versionPtr := flag.Bool("version", false, "versionFlag")
+	helpPtr := flag.Bool("help", false, "helpFlag")
 	flag.Parse()
 
-	fmt.Println("vim-go " + prop.GetString("versionPrefix", "no"))
-	fmt.Println("vim-go " + prop.GetString("notest", "no"))
-
-	fmt.Println("vim-go ", *versionPtr)
+	// flag.Arg(i)
+	if *helpPtr {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
 	if *versionPtr {
 		versionString := getVersionString(versionPtr, prop)
-		fmt.Println(versionString)
+		//versionString := "6796757"
+		fmt.Printf("%v-%v-%v\n", prop.GetString("versionPrefix", "undefined"), versionString, prop.GetString("versionSuffix", "undefined"))
+		os.Exit(0)
 	}
 
 	cmd := exec.Command("ls", "-lah")
