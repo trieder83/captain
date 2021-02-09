@@ -7,7 +7,7 @@ import (
 
 import "github.com/magiconair/properties"
 
-func TestGetVersionString(t *testing.T) {
+func TestGetVersionStringProps(t *testing.T) {
 	// expect
 	expectVersionString := "testprefix-.*-testsuffix"
 	testProperties := properties.LoadMap(map[string]string{"versionSuffix": "testsuffix", "versionPrefix": "testprefix", "versionGitHash": "git rev-parse --short HEAD"})
@@ -21,12 +21,13 @@ func TestGetVersionString(t *testing.T) {
 	if err != nil {
 		t.Errorf("getVersionString failed with error, %v", err)
 	}
-
+}
+func TestGetVersionStringEmptyProps(t *testing.T) {
 	// expect undefied
-	expectVersionString = "undefined-.*-undefined"
-	testProperties = properties.LoadMap(map[string]string{"versionGitHash": "git rev-parse --short HEAD"})
-	testVersionString = getVersionString(testProperties)
-	matched, err = regexp.Match(expectVersionString, []byte(testVersionString))
+	expectVersionString := "undefined-.*-undefined"
+	testProperties := properties.LoadMap(map[string]string{"versionGitHash": "git rev-parse --short HEAD"})
+	testVersionString := getVersionString(testProperties)
+	matched, err := regexp.Match(expectVersionString, []byte(testVersionString))
 	if !matched {
 		t.Errorf("getVersionString failed , expected %v, got %v", expectVersionString, testVersionString)
 	}
