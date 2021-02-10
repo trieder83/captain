@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 ARG TARGETOS
 ARG TARGETARCH
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/captain cmd/main.go
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/captain captain.go
 
 FROM scratch AS bin
 COPY --from=build /out/captain /
